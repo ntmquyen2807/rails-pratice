@@ -1,0 +1,40 @@
+version: '3'
+
+volumes:
+  mysql-data:
+    driver: local
+  bundle:
+    driver: local
+
+services:
+  web:
+    build: .
+    environment: &app_env
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PSWD: quyenntm
+      DB_NAME: blog_dev
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/usr/src/app
+      - bundle:/usr/local/bundle
+    links:
+      - db
+    # Keep the stdin open, so we can attach to our app container's process and do things such as
+    # byebug, etc:
+    stdin_open: true
+    # Enable sending signals (CTRL+C, CTRL+P + CTRL+Q) into the container:
+    tty: true
+  db:
+    image: mysql:5.7.22
+    environment:  
+      MYSQL_ROOT_PASSWORD: quyenntm
+      MYSQL_DATABASE: blog_dev
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
