@@ -1,7 +1,7 @@
 version: '3'
 
 volumes:
-  store:
+  mysql-data:
     driver: local
   bundle:
     driver: local
@@ -9,6 +9,13 @@ volumes:
 services:
   web:
     build: .
+    environment: &app_env
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PSWD: quyenntm
+      DB_NAME: blog_dev
     ports:
       - 3000:3000
     volumes:
@@ -21,20 +28,13 @@ services:
     stdin_open: true
     # Enable sending signals (CTRL+C, CTRL+P + CTRL+Q) into the container:
     tty: true
-    environment: &app_env
-      PORT: 3000
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: quyenntm
-      DB_PSWD: quyenntm
-      DB_NAME: blog_dev
   db:
-    image: mysql:latest
+    image: mysql:5.7.22
+    environment:  
+      MYSQL_ROOT_PASSWORD: quyenntm
+      MYSQL_DATABASE: blog_dev
     ports:
       - 3306:3306
     volumes:
-      - store:/var/lib/postgresql/data
-    environment:
-      MYSQL_USER: quyenntm  
-      MYSQL_PASSWORD: quyenntm
-      MYSQL_DB: blog_dev
+      - mysql-data:/var/lib/mysql
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
